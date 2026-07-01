@@ -97,9 +97,9 @@
         </div>
         
         <!-- Footer -->
-        <div class="flex justify-between items-center text-[8px] sm:text-[9px] md:text-[10px] lg:text-[10.5px] font-mono text-slate-500 border-t border-white/5 pt-2 mt-2 md:mt-2 relative z-10">
-          <span>ID: FASIL-RAFLY-2026</span>
-          <span>AWS x DICODING</span>
+        <div class="flex flex-col items-center gap-0.5 text-[8px] sm:text-[9px] md:text-[10px] lg:text-[10.5px] font-mono text-slate-500 border-t border-white/5 pt-2 mt-2 md:mt-2 relative z-10 text-center">
+          <span class="whitespace-nowrap">ID: FASIL-RAFLY-2026</span>
+          <span class="whitespace-nowrap text-aws-orange/70">AWS x DICODING</span>
         </div>
       </div>
       
@@ -220,7 +220,7 @@ export default {
     const shareUrl = computed(() => {
       const id = participant.value.id || route.params.id
       const nameSlug = slugify(participant.value.nama_lengkap || '')
-      return `${window.location.origin}/v1/share/${id}/${nameSlug}`
+      return `${window.location.origin}/v1/share/${id}/${nameSlug}?v=2026`
     })
 
     const capitalizeName = (str) => {

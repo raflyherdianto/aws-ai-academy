@@ -345,10 +345,10 @@ func (h *ProfileHandler) SharePage(c *gin.Context) {
 		if imagePath.Valid && imagePath.String != "" {
 			imgURL = h.BaseURL + imagePath.String
 		}
-		// Canonical URL dan redirect target: Vue SPA menangani /v1/share/ di client
-		// Manusia di-redirect ke URL yang sama, Vue Router menampilkan halaman kartu
-		canonicalURL := fmt.Sprintf("%s/v1/share/%d/%s", h.BaseURL, id, fullNameSlug)
-		spaRedirect := fmt.Sprintf("%s/v1/share/%d/%s", frontendBase, id, fullNameSlug)
+		// canonicalURL HARUS sama dengan URL yang dibagikan dari frontend (termasuk ?v=2026)
+		// agar WhatsApp menyimpan cache dengan key URL yang tepat
+		canonicalURL := fmt.Sprintf("%s/v1/share/%d/%s?v=2026", h.BaseURL, id, fullNameSlug)
+		spaRedirect := fmt.Sprintf("%s/v1/share/%d/%s?v=2026", frontendBase, id, fullNameSlug)
 
 		html := fmt.Sprintf(`<!DOCTYPE html>
 <html prefix="og: https://ogp.me/ns#">
