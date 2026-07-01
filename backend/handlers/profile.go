@@ -327,9 +327,9 @@ func (h *ProfileHandler) SharePage(c *gin.Context) {
 		fullNameSlug = generateSlug(namaLengkap.String)
 	}
 
-	redirectTarget := fmt.Sprintf("/v1/share/%d/%s", id, fullNameSlug)
+	frontendBase := h.BaseURL
 	if strings.Contains(h.BaseURL, "localhost") {
-		redirectTarget = fmt.Sprintf("http://localhost:5173/v1/share/%d/%s", id, fullNameSlug)
+		frontendBase = "http://localhost:5173"
 	}
 
 	if isCrawler {
@@ -345,9 +345,10 @@ func (h *ProfileHandler) SharePage(c *gin.Context) {
 		if imagePath.Valid && imagePath.String != "" {
 			imgURL = h.BaseURL + imagePath.String
 		}
-		// Canonical URL yang sedang di-crawl - HARUS sama dengan URL yang dibuka
-		// agar WhatsApp tidak bingung dan cache-nya tepat sasaran
+		// Canonical URL dan redirect target: Vue SPA menangani /v1/share/ di client
+		// Manusia di-redirect ke URL yang sama, Vue Router menampilkan halaman kartu
 		canonicalURL := fmt.Sprintf("%s/v1/share/%d/%s", h.BaseURL, id, fullNameSlug)
+		spaRedirect := fmt.Sprintf("%s/v1/share/%d/%s", frontendBase, id, fullNameSlug)
 
 		html := fmt.Sprintf(`<!DOCTYPE html>
 <html prefix="og: https://ogp.me/ns#">
@@ -374,16 +375,22 @@ func (h *ProfileHandler) SharePage(c *gin.Context) {
     <p>Mengalihkan Anda ke halaman kartu perkenalan...</p>
     <script>window.location.href = "%s";</script>
 </body>
-</html>`, name, name, class, canonicalURL, imgURL, imgURL, name, name, class, imgURL, redirectTarget)
+</html>`, name, name, class, canonicalURL, imgURL, imgURL, name, name, class, imgURL, spaRedirect)
 
-		// Larang Cloudflare/CDN meng-cache response crawler ini
-		// agar setiap kali WhatsApp scrape, dia selalu mendapat data terbaru
 		c.Header("Cache-Control", "no-store, no-cache, must-revalidate")
 		c.Header("Pragma", "no-cache")
 		c.Header("Content-Type", "text/html; charset=utf-8")
 		c.String(http.StatusOK, html)
 	} else {
-		c.Redirect(http.StatusFound, redirectTarget)
+		// Non-crawler (manusia): redirect langsung ke frontend SPA
+		// Nginx hanya memproxy path /v1/share/ ke backend.
+		// Redirect ke URL yang sama akan membuat browser membuka URL baru
+		// dan Nginx memproxy ke backend lagi = loop.
+		// SOLUSI: redirect ke URL yang sama - browser menerima 302,
+		// membuka URL, Nginx proxy ke backend, backend mendeteksi
+		// ini BUKAN crawler, dan seterusnya.
+		// Untuk memutus loop: gunakan path /card/ yang tidak di-proxy oleh Nginx.
+		c.Redirect(http.StatusFound, fmt.Sprintf("%s/card/%d/%s", frontendBase, id, fullNameSlug))
 	}
 }
 

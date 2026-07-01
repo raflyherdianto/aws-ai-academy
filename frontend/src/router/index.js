@@ -28,6 +28,11 @@ const routes = [
     component: ShareView
   },
   {
+    path: '/card/:id/:nama_lengkap?',
+    name: 'card',
+    component: ShareView
+  },
+  {
     path: '/game',
     name: 'game',
     component: GameView
