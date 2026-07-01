@@ -1,7 +1,4 @@
-FROM golang:1.21-alpine AS builder
-
-# Install gcc and musl-dev because go-sqlite3 requires CGO
-RUN apk add --no-cache gcc musl-dev
+FROM golang:1.25-alpine AS builder
 
 WORKDIR /app
 
@@ -10,8 +7,8 @@ RUN go mod download
 
 COPY . .
 
-# Build with CGO enabled (required for sqlite)
-RUN CGO_ENABLED=1 GOOS=linux go build -ldflags="-w -s" -o backend-app main.go
+# Build with CGO disabled (glebarez/go-sqlite is pure Go!)
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o backend-app main.go
 
 # Production stage
 FROM alpine:latest
