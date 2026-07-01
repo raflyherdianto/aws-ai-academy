@@ -293,7 +293,7 @@ func (h *ProfileHandler) SharePage(c *gin.Context) {
 	idOrSlug := c.Param("id")
 
 	var id int64
-	var namaLengkap, rpgClass, imagePath, slugStr sql.NullString
+	var namaLengkap, rpgClass, imagePath sql.NullString
 
 	idParsed, err := strconv.ParseInt(idOrSlug, 10, 64)
 	var query string
@@ -306,20 +306,11 @@ func (h *ProfileHandler) SharePage(c *gin.Context) {
 		param = idOrSlug
 	}
 
+	var slugStr sql.NullString
 	err = h.DB.QueryRow(query, param).Scan(&id, &namaLengkap, &rpgClass, &imagePath, &slugStr)
 	if err != nil {
-		c.Redirect(http.StatusFound, "/")
+		c.Status(http.StatusNotFound)
 		return
-	}
-
-	userAgent := c.GetHeader("User-Agent")
-	isCrawler := false
-	crawlers := []string{"whatsapp", "facebookexternalhit", "twitterbot", "linkedinbot", "telegrambot", "slackbot", "googlebot"}
-	for _, crawler := range crawlers {
-		if strings.Contains(strings.ToLower(userAgent), crawler) {
-			isCrawler = true
-			break
-		}
 	}
 
 	fullNameSlug := "developer"
@@ -327,37 +318,33 @@ func (h *ProfileHandler) SharePage(c *gin.Context) {
 		fullNameSlug = generateSlug(namaLengkap.String)
 	}
 
-	frontendBase := h.BaseURL
-	if strings.Contains(h.BaseURL, "localhost") {
-		frontendBase = "http://localhost:5173"
+	name := "Developer"
+	if namaLengkap.Valid {
+		name = namaLengkap.String
+	}
+	class := "Cloud Adventurer"
+	if rpgClass.Valid {
+		class = rpgClass.String
+	}
+	imgURL := h.BaseURL + "/assets/placeholder-card-v2.jpg"
+	if imagePath.Valid && imagePath.String != "" {
+		imgURL = h.BaseURL + imagePath.String
 	}
 
-	if isCrawler {
-		name := "Developer"
-		if namaLengkap.Valid {
-			name = namaLengkap.String
-		}
-		class := "Cloud Adventurer"
-		if rpgClass.Valid {
-			class = rpgClass.String
-		}
-		imgURL := h.BaseURL + "/assets/placeholder-card-v2.jpg"
-		if imagePath.Valid && imagePath.String != "" {
-			imgURL = h.BaseURL + imagePath.String
-		}
-		// canonicalURL HARUS sama dengan URL yang dibagikan dari frontend (termasuk ?v=2026)
-		// agar WhatsApp menyimpan cache dengan key URL yang tepat
-		canonicalURL := fmt.Sprintf("%s/v1/share/%d/%s?v=2026", h.BaseURL, id, fullNameSlug)
-		spaRedirect := fmt.Sprintf("%s/v1/share/%d/%s?v=2026", frontendBase, id, fullNameSlug)
+	// URL canonical = URL yang dibagikan dari Vue (termasuk ?v=2026 untuk bypass WA cache)
+	canonicalURL := fmt.Sprintf("%s/v1/share/%d/%s?v=2026", h.BaseURL, id, fullNameSlug)
 
-		html := fmt.Sprintf(`<!DOCTYPE html>
+	// Halaman OG HTML untuk crawler (WhatsApp, Facebook, dll)
+	// Nginx sudah memfilter: hanya crawler yang sampai ke handler ini.
+	// Browser biasa di-serve index.html langsung oleh Nginx.
+	html := fmt.Sprintf(`<!DOCTYPE html>
 <html prefix="og: https://ogp.me/ns#">
 <head>
     <meta charset="utf-8">
     <title>Developer Card - %s | AWS AI Academy</title>
     <meta property="og:site_name" content="AWS AI Academy" />
     <meta property="og:title" content="Developer Card: %s" />
-    <meta property="og:description" content="Class: %s | Intip kartu karakter developer dan ikuti ice-breaking kami di AWS AI Academy!" />
+    <meta property="og:description" content="Class: %s | AWS AI Academy - Intip kartu karakter developer ini!" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="%s" />
     <meta property="og:image" content="%s" />
@@ -372,26 +359,14 @@ func (h *ProfileHandler) SharePage(c *gin.Context) {
     <meta name="twitter:image" content="%s" />
 </head>
 <body>
-    <p>Mengalihkan Anda ke halaman kartu perkenalan...</p>
-    <script>window.location.href = "%s";</script>
+    <p>Developer Card - %s</p>
 </body>
-</html>`, name, name, class, canonicalURL, imgURL, imgURL, name, name, class, imgURL, spaRedirect)
+</html>`, name, name, class, canonicalURL, imgURL, imgURL, name, name, class, imgURL, name)
 
-		c.Header("Cache-Control", "no-store, no-cache, must-revalidate")
-		c.Header("Pragma", "no-cache")
-		c.Header("Content-Type", "text/html; charset=utf-8")
-		c.String(http.StatusOK, html)
-	} else {
-		// Non-crawler (manusia): redirect langsung ke frontend SPA
-		// Nginx hanya memproxy path /v1/share/ ke backend.
-		// Redirect ke URL yang sama akan membuat browser membuka URL baru
-		// dan Nginx memproxy ke backend lagi = loop.
-		// SOLUSI: redirect ke URL yang sama - browser menerima 302,
-		// membuka URL, Nginx proxy ke backend, backend mendeteksi
-		// ini BUKAN crawler, dan seterusnya.
-		// Untuk memutus loop: gunakan path /card/ yang tidak di-proxy oleh Nginx.
-		c.Redirect(http.StatusFound, fmt.Sprintf("%s/card/%d/%s", frontendBase, id, fullNameSlug))
-	}
+	c.Header("Cache-Control", "no-store, no-cache, must-revalidate")
+	c.Header("Pragma", "no-cache")
+	c.Header("Content-Type", "text/html; charset=utf-8")
+	c.String(http.StatusOK, html)
 }
 
 func generateSlug(name string) string {
