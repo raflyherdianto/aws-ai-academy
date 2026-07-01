@@ -345,30 +345,41 @@ func (h *ProfileHandler) SharePage(c *gin.Context) {
 		if imagePath.Valid && imagePath.String != "" {
 			imgURL = h.BaseURL + imagePath.String
 		}
-		shareURL := fmt.Sprintf("%s/v1/share/%d/%s", h.BaseURL, id, fullNameSlug)
+		// Canonical URL yang sedang di-crawl - HARUS sama dengan URL yang dibuka
+		// agar WhatsApp tidak bingung dan cache-nya tepat sasaran
+		canonicalURL := fmt.Sprintf("%s/v1/share/%d/%s", h.BaseURL, id, fullNameSlug)
 
 		html := fmt.Sprintf(`<!DOCTYPE html>
-<html>
+<html prefix="og: https://ogp.me/ns#">
 <head>
     <meta charset="utf-8">
-    <title>Developer Card - %s</title>
+    <title>Developer Card - %s | AWS AI Academy</title>
+    <meta property="og:site_name" content="AWS AI Academy" />
     <meta property="og:title" content="Developer Card: %s" />
     <meta property="og:description" content="Class: %s | Intip kartu karakter developer dan ikuti ice-breaking kami di AWS AI Academy!" />
-    <meta property="og:image" content="%s" />
-    <meta property="og:image:type" content="image/jpeg" />
-    <meta property="og:url" content="%s" />
     <meta property="og:type" content="website" />
+    <meta property="og:url" content="%s" />
+    <meta property="og:image" content="%s" />
+    <meta property="og:image:secure_url" content="%s" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Developer Card %s - AWS AI Academy" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Developer Card: %s" />
-    <meta name="twitter:description" content="Class: %s | Intip kartu karakter developer dan ikuti ice-breaking kami di AWS AI Academy!" />
+    <meta name="twitter:description" content="Class: %s | AWS AI Academy" />
     <meta name="twitter:image" content="%s" />
 </head>
 <body>
     <p>Mengalihkan Anda ke halaman kartu perkenalan...</p>
     <script>window.location.href = "%s";</script>
 </body>
-</html>`, name, name, class, imgURL, shareURL, name, class, imgURL, redirectTarget)
+</html>`, name, name, class, canonicalURL, imgURL, imgURL, name, name, class, imgURL, redirectTarget)
 
+		// Larang Cloudflare/CDN meng-cache response crawler ini
+		// agar setiap kali WhatsApp scrape, dia selalu mendapat data terbaru
+		c.Header("Cache-Control", "no-store, no-cache, must-revalidate")
+		c.Header("Pragma", "no-cache")
 		c.Header("Content-Type", "text/html; charset=utf-8")
 		c.String(http.StatusOK, html)
 	} else {
