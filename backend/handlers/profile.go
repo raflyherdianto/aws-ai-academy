@@ -341,7 +341,7 @@ func (h *ProfileHandler) SharePage(c *gin.Context) {
 		if rpgClass.Valid {
 			class = rpgClass.String
 		}
-		imgURL := h.BaseURL + "/assets/placeholder-card.jpg"
+		imgURL := h.BaseURL + "/assets/placeholder-card-v2.jpg"
 		if imagePath.Valid && imagePath.String != "" {
 			imgURL = h.BaseURL + imagePath.String
 		}

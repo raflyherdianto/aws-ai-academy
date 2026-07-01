@@ -259,12 +259,13 @@ export default {
         const canvas = await html2canvas(rpgCard.value, {
           scale: 3, 
           useCORS: true,
-          backgroundColor: null
+          backgroundColor: '#0F172A', // Gunakan warna solid slate-900 sebagai background untuk JPEG karena tidak ada transparansi
+          windowWidth: 1200 // Paksa simulasi ukuran layar desktop agar layout rapi dan tidak berantakan (seperti di mobile)
         })
-        const image = canvas.toDataURL('image/png')
+        const image = canvas.toDataURL('image/jpeg', 1.0)
         const link = document.createElement('a')
         const nickname = participant.value.nama_panggilan || 'developer'
-        link.download = `card_${nickname}.png`
+        link.download = `card_${nickname}.jpg`
         link.href = image
         link.click()
       } catch (err) {
