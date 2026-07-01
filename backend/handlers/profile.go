@@ -293,21 +293,21 @@ func (h *ProfileHandler) SharePage(c *gin.Context) {
 	idOrSlug := c.Param("id")
 
 	var id int64
-	var namaLengkap, rpgClass, imagePath sql.NullString
+	var namaLengkap, rpgClass sql.NullString
 
 	idParsed, err := strconv.ParseInt(idOrSlug, 10, 64)
 	var query string
 	var param interface{}
 	if err == nil {
-		query = "SELECT id, nama_lengkap, rpg_class, image_path, slug FROM participants WHERE id = ?"
+		query = "SELECT id, nama_lengkap, rpg_class, slug FROM participants WHERE id = ?"
 		param = idParsed
 	} else {
-		query = "SELECT id, nama_lengkap, rpg_class, image_path, slug FROM participants WHERE slug = ?"
+		query = "SELECT id, nama_lengkap, rpg_class, slug FROM participants WHERE slug = ?"
 		param = idOrSlug
 	}
 
 	var slugStr sql.NullString
-	err = h.DB.QueryRow(query, param).Scan(&id, &namaLengkap, &rpgClass, &imagePath, &slugStr)
+	err = h.DB.QueryRow(query, param).Scan(&id, &namaLengkap, &rpgClass, &slugStr)
 	if err != nil {
 		c.Status(http.StatusNotFound)
 		return
@@ -326,42 +326,27 @@ func (h *ProfileHandler) SharePage(c *gin.Context) {
 	if rpgClass.Valid {
 		class = rpgClass.String
 	}
-	imgURL := h.BaseURL + "/assets/placeholder-card-v2.jpg"
-	if imagePath.Valid && imagePath.String != "" {
-		imgURL = h.BaseURL + imagePath.String
-	}
 
-	// URL canonical = URL yang dibagikan dari Vue (termasuk ?v=2026 untuk bypass WA cache)
 	canonicalURL := fmt.Sprintf("%s/v1/share/%d/%s?v=2026", h.BaseURL, id, fullNameSlug)
 
-	// Halaman OG HTML untuk crawler (WhatsApp, Facebook, dll)
-	// Nginx sudah memfilter: hanya crawler yang sampai ke handler ini.
-	// Browser biasa di-serve index.html langsung oleh Nginx.
 	html := fmt.Sprintf(`<!DOCTYPE html>
 <html prefix="og: https://ogp.me/ns#">
 <head>
     <meta charset="utf-8">
-    <title>Developer Card - %s | AWS AI Academy</title>
+    <title>Developer Card: %s | AWS AI Academy</title>
     <meta property="og:site_name" content="AWS AI Academy" />
     <meta property="og:title" content="Developer Card: %s" />
-    <meta property="og:description" content="Class: %s | AWS AI Academy - Intip kartu karakter developer ini!" />
+    <meta property="og:description" content="Class: %s | Intip kartu karakter developer ini di AWS AI Academy!" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="%s" />
-    <meta property="og:image" content="%s" />
-    <meta property="og:image:secure_url" content="%s" />
-    <meta property="og:image:type" content="image/jpeg" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="Developer Card %s - AWS AI Academy" />
-    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="Developer Card: %s" />
     <meta name="twitter:description" content="Class: %s | AWS AI Academy" />
-    <meta name="twitter:image" content="%s" />
 </head>
 <body>
     <p>Developer Card - %s</p>
 </body>
-</html>`, name, name, class, canonicalURL, imgURL, imgURL, name, name, class, imgURL, name)
+</html>`, name, name, class, canonicalURL, name, class, name)
 
 	c.Header("Cache-Control", "no-store, no-cache, must-revalidate")
 	c.Header("Pragma", "no-cache")
