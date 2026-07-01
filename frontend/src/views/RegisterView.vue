@@ -416,13 +416,14 @@ export default {
     }
     onMounted(async () => {
       const email = localStorage.getItem('user_email')
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080'
       if (!email) {
         router.push('/')
         return
       }
       form.email = email
       try {
-        const response = await fetch(`http://localhost:8080/api/auth?email=${encodeURIComponent(email)}`)
+        const response = await fetch(`${apiUrl}/api/auth?email=${encodeURIComponent(email)}`)
         if (response.ok) {
           const data = await response.json()
           fullName.value = data.participant.nama_lengkap
@@ -434,7 +435,7 @@ export default {
         console.error('Gagal mengambil detail email', err)
       }
       try {
-        const pngRes = await fetch(`http://localhost:8080/api/avatar?seed=${encodeURIComponent(email)}`)
+        const pngRes = await fetch(`${apiUrl}/api/avatar?seed=${encodeURIComponent(email)}`)
         if (pngRes.ok) {
           const blob = await pngRes.blob()
           const reader = new FileReader()
