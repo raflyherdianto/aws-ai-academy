@@ -5,7 +5,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
   plugins: [
-    vue(), 
+    vue(),
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
@@ -13,9 +13,9 @@ export default defineConfig({
         enabled: true
       },
       manifest: {
-        name: 'AWS AI Academy - RPG Profiler',
-        short_name: 'AWS RPG',
-        description: 'Bikin profil RPG kamu untuk AWS AI Academy!',
+        name: 'AWS AI Academy - Coder Profiler',
+        short_name: 'AWS CODER',
+        description: 'Bikin profil Coder kamu untuk AWS AI Academy!',
         theme_color: '#F97316',
         background_color: '#020617',
         display: 'standalone',

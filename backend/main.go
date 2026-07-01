@@ -108,6 +108,7 @@ func JWTMiddleware() gin.HandlerFunc {
 func findSeedFile() string {
 	// Cari file mentee.json di beberapa tempat potensial
 	paths := []string{
+		"./data/mentee.json", // Prioritas utama untuk Docker volume
 		"../mentee.json",
 		"./mentee.json",
 		"mentee.json",
