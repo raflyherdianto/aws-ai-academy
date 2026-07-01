@@ -97,7 +97,7 @@
         </div>
         
         <!-- Footer -->
-        <div class="flex flex-col items-center gap-0.5 text-[8px] sm:text-[9px] md:text-[10px] lg:text-[10.5px] font-mono text-slate-500 border-t border-white/5 pt-2 mt-2 md:mt-2 relative z-10 text-center">
+        <div class="flex justify-between items-center text-[8px] sm:text-[9px] md:text-[10px] lg:text-[10.5px] font-mono text-slate-500 border-t border-white/5 pt-2 mt-2 md:mt-2 relative z-10">
           <span class="whitespace-nowrap">ID: FASIL-RAFLY-2026</span>
           <span class="whitespace-nowrap text-aws-orange/70">AWS x DICODING</span>
         </div>
