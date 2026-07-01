@@ -355,6 +355,7 @@ func (h *ProfileHandler) SharePage(c *gin.Context) {
     <meta property="og:title" content="Developer Card: %s" />
     <meta property="og:description" content="Class: %s | Intip kartu karakter developer dan ikuti ice-breaking kami di AWS AI Academy!" />
     <meta property="og:image" content="%s" />
+    <meta property="og:image:type" content="image/jpeg" />
     <meta property="og:url" content="%s" />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />

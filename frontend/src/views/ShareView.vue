@@ -17,7 +17,7 @@
       </div>
       <div 
         ref="rpgCard"
-        class="w-[340px] h-[480px] sm:w-[380px] sm:h-[532px] md:w-[420px] md:h-[588px] lg:w-[440px] lg:h-[616px] p-5 lg:p-6 glass-card relative overflow-hidden flex flex-col justify-between shadow-2xl shadow-black/60 rounded-2xl border border-white/10"
+        class="w-[340px] h-auto min-h-[480px] sm:w-[380px] sm:min-h-[532px] md:w-[420px] md:min-h-[588px] lg:w-[440px] lg:min-h-[616px] p-5 lg:p-6 glass-card relative overflow-hidden flex flex-col justify-between shadow-2xl shadow-black/60 rounded-2xl border border-white/10"
         style="background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.8) 100%);"
       >
         <div class="absolute -top-24 -left-24 w-48 h-48 md:w-56 md:h-56 bg-aws-orange/10 rounded-full blur-2xl md:blur-3xl"></div>
@@ -46,7 +46,7 @@
         <!-- Body -->
         <div class="my-3 md:my-3.5 space-y-2 md:space-y-2.5 relative z-10 flex-grow flex flex-col justify-start">
           <div class="text-center py-2 px-3 sm:py-2.5 sm:px-4 md:py-2.5 md:px-4 bg-white/5 rounded-xl border border-white/5">
-            <p class="text-slate-300 text-[11px] sm:text-[12px] md:text-[13px] lg:text-[14px] italic line-clamp-3 md:line-clamp-3 leading-relaxed">
+            <p class="text-slate-300 text-[11px] sm:text-[12px] md:text-[13px] lg:text-[14px] italic leading-relaxed break-words">
               "{{ participant.bio || 'Hello World!' }}"
             </p>
           </div>
@@ -66,7 +66,7 @@
           
           <div v-if="participant.motivasi" class="p-2 sm:p-2.5 md:p-3 lg:p-3 bg-white/5 border border-white/5 rounded-lg md:rounded-xl text-left">
             <span class="text-aws-orange block font-bold uppercase tracking-wider text-[7px] sm:text-[7.5px] md:text-[8px] lg:text-[9px] mb-1">MOTIVASI</span>
-            <p class="text-slate-300 text-[9px] sm:text-[9.5px] md:text-[11px] lg:text-[12px] leading-relaxed line-clamp-2 md:line-clamp-2">
+            <p class="text-slate-300 text-[9px] sm:text-[9.5px] md:text-[11px] lg:text-[12px] leading-relaxed break-words">
               {{ participant.motivasi }}
             </p>
           </div>
