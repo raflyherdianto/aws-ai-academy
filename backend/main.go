@@ -191,8 +191,8 @@ func main() {
 	}
 
 	// Route khusus link sharing (WhatsApp Open Graph)
-	r.GET("/share/:id", profileHandler.SharePage)
-	r.GET("/share/:id/:nama_lengkap", profileHandler.SharePage)
+	r.GET("/v1/share/:id", profileHandler.SharePage)
+	r.GET("/v1/share/:id/:nama_lengkap", profileHandler.SharePage)
 
 	// Route proxy avatar to prevent CORS taint in html2canvas (returns PNG format for 100% canvas compatibility)
 	r.GET("/api/avatar", func(c *gin.Context) {

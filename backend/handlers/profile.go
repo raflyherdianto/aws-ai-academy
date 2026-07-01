@@ -327,9 +327,9 @@ func (h *ProfileHandler) SharePage(c *gin.Context) {
 		fullNameSlug = generateSlug(namaLengkap.String)
 	}
 
-	redirectTarget := fmt.Sprintf("/share/%d/%s", id, fullNameSlug)
+	redirectTarget := fmt.Sprintf("/v1/share/%d/%s", id, fullNameSlug)
 	if strings.Contains(h.BaseURL, "localhost") {
-		redirectTarget = fmt.Sprintf("http://localhost:5173/share/%d/%s", id, fullNameSlug)
+		redirectTarget = fmt.Sprintf("http://localhost:5173/v1/share/%d/%s", id, fullNameSlug)
 	}
 
 	if isCrawler {
@@ -345,7 +345,7 @@ func (h *ProfileHandler) SharePage(c *gin.Context) {
 		if imagePath.Valid && imagePath.String != "" {
 			imgURL = h.BaseURL + imagePath.String
 		}
-		shareURL := fmt.Sprintf("%s/share/%d/%s", h.BaseURL, id, fullNameSlug)
+		shareURL := fmt.Sprintf("%s/v1/share/%d/%s", h.BaseURL, id, fullNameSlug)
 
 		html := fmt.Sprintf(`<!DOCTYPE html>
 <html>

@@ -23,7 +23,7 @@ const routes = [
     }
   },
   {
-    path: '/share/:id/:nama_lengkap?',
+    path: '/v1/share/:id/:nama_lengkap?',
     name: 'share',
     component: ShareView
   },
