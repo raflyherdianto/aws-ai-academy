@@ -110,20 +110,9 @@ func InitDB(dbPath string, schemaPath string, seedJSONPath string) (*sql.DB, err
 
 func upsertFacilitator(db *sql.DB) error {
 	email := "mochraflyherdianto@gmail.com"
-	rpgClass := "AI Alchemist"
-	rpgStats := `{"coding":95,"bugs":95,"architecture":95,"cloud":95}`
-	namaPanggilan := "rafly"
-	gender := "Laki-laki"
-	kota := "Kota Malang"
-	provinsi := "Jawa Timur"
-	pekerjaan := "CEO Menyamar"
-	bio := "Jadilah pejabat tinggi tanpa harus menjilat. Nikmati setiap proses yang dilalui"
-	isRegistered := 1
 	namaLengkap := "Mochammad Rafly Herdianto"
-	slug := generateSlug(namaLengkap)
 	whatsapp := "+6285155070929"
-	linkedin := "https://linkedin.com/in/mochraflyherdianto"
-	motivasi := "Investasi leher ke atas lebih penting daripada investasi perut ke depan"
+	isRegistered := 0
 
 	var exists bool
 	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM participants WHERE email = ?)", email).Scan(&exists)
@@ -134,14 +123,15 @@ func upsertFacilitator(db *sql.DB) error {
 	if exists {
 		_, err = db.Exec(`
 			UPDATE participants 
-			SET nama_lengkap = ?, whatsapp = ?, nama_panggilan = ?, gender = ?, kota = ?, provinsi = ?, pekerjaan = ?, bio = ?, rpg_class = ?, rpg_stats = ?, linkedin = ?, motivasi = ?, slug = ?, is_registered = ?
+			SET nama_lengkap = ?, whatsapp = ?, is_registered = ?,
+			nama_panggilan = NULL, gender = NULL, kota = NULL, provinsi = NULL, pekerjaan = NULL, bio = NULL, rpg_class = NULL, rpg_stats = NULL, linkedin = NULL, motivasi = NULL, slug = NULL
 			WHERE email = ?
-		`, namaLengkap, whatsapp, namaPanggilan, gender, kota, provinsi, pekerjaan, bio, rpgClass, rpgStats, linkedin, motivasi, slug, isRegistered, email)
+		`, namaLengkap, whatsapp, isRegistered, email)
 	} else {
 		_, err = db.Exec(`
-			INSERT INTO participants(email, whatsapp, nama_lengkap, nama_panggilan, gender, kota, provinsi, pekerjaan, bio, rpg_class, rpg_stats, linkedin, motivasi, slug, is_registered)
-			VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-		`, email, whatsapp, namaLengkap, namaPanggilan, gender, kota, provinsi, pekerjaan, bio, rpgClass, rpgStats, linkedin, motivasi, slug, isRegistered)
+			INSERT INTO participants(email, whatsapp, nama_lengkap, is_registered)
+			VALUES(?, ?, ?, ?)
+		`, email, whatsapp, namaLengkap, isRegistered)
 	}
 	return err
 }
