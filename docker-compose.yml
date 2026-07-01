@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: academy-backend
+    restart: unless-stopped
+    volumes:
+      # Mount data dan uploads agar persisten meskipun container direstart
+      - ./backend/data:/app/data
+      - ./backend/uploads:/app/uploads
+    env_file:
+      - ./backend/.env
+    networks:
+      - shared-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # Build-time variable, bisa di-override via env atau default ke production URL Anda
+        - VITE_API_URL=${VITE_API_URL:-https://apifasil.cobalab.web.id}
+    container_name: academy-frontend
+    restart: unless-stopped
+    networks:
+      - shared-network
+
+networks:
+  # Menggunakan network eksternal yang sudah ada di EC2 (digunakan juga oleh Cloudflare Tunnel)
+  shared-network:
+    external: true

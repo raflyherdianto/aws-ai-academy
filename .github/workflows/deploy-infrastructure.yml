@@ -1,0 +1,29 @@
+name: Deploy Infrastructure to EC2
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'docker-compose.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy-infra:
+    name: Deploy All Infrastructure
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script: |
+            cd ~/aws-ai-academy
+            git pull origin main
+            
+            # Jika file docker-compose yang berubah, evaluasi ulang semua service
+            docker compose up -d --build
+            
+            # Membersihkan sisa image lama
+            docker image prune -f

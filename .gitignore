@@ -1,0 +1,27 @@
+# ----------------------------------------------------------------------
+# Aturan Abaikan Khusus Direktori Utama (Root)
+# ----------------------------------------------------------------------
+
+# Abaikan folder instalasi root yang tidak diperlukan
+/node_modules/
+/.vscode/
+
+# Abaikan semua file sisa/sementara di root berdasarkan ekstensi
+/*.html
+/*.js
+/*.css
+/*.png
+/*.py
+/*.ps1
+/*.json
+/*.md
+.gniignore
+.DS_Store
+
+# Pengecualian: Bolehkan file konfigurasi dan dokumentasi penting di root
+!/docker-compose.yml
+!/README.md
+!/.gitignore
+
+# Catatan: Aturan di atas menggunakan awalan '/' sehingga HANYA berlaku 
+# di root direktori ini saja dan tidak mengganggu isi folder /frontend atau /backend.

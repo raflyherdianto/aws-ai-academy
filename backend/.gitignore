@@ -1,0 +1,16 @@
+/bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+.env
+/data/*.db
+/data/*.db-shm
+/data/*.db-wal
+!/data/.keep
+/uploads/*
+!/uploads/.keep
+scratch/
