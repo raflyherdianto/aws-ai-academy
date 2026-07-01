@@ -134,10 +134,10 @@ func main() {
 	seedPath := findSeedFile()
 	uploadDir := "./uploads"
 
-	// Tentukan Base URL untuk Open Graph preview (gunakan localhost untuk lokal)
+	// Tentukan Base URL untuk Open Graph preview (gunakan domain production jika kosong)
 	baseURL := os.Getenv("BASE_URL")
 	if baseURL == "" {
-		baseURL = "http://localhost:8080"
+		baseURL = "https://fasilrafly.cobalab.web.id"
 	}
 
 	// Inisialisasi basis data
