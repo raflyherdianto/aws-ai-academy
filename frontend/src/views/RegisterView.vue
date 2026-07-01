@@ -428,7 +428,7 @@ export default {
           const data = await response.json()
           fullName.value = data.participant.nama_lengkap
           if (data.is_registered) {
-            router.push(`/v1/share/${data.participant.id}`)
+            router.push(`/share-card/${data.participant.id}`)
           }
         }
       } catch (err) {
@@ -572,7 +572,7 @@ export default {
                 .replace(/-+$/, '')
             }
             const nameSlug = slugify(data.participant.nama_lengkap || '')
-            router.push(`/v1/share/${participantId}/${nameSlug}`)
+            router.push(`/share-card/${participantId}/${nameSlug}`)
           } else {
             const uploadData = await uploadResponse.json()
             error.value = uploadData.error || 'Gagal mengunggah kartu ke server.'

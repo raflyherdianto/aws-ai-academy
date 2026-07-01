@@ -280,7 +280,7 @@ export default {
       try {
         const id = participant.value.id || route.params.id
         const nameSlug = slugify(participant.value.nama_lengkap || '')
-        const frontendShareUrl = `${window.location.origin}/v1/share/${id}/${nameSlug}`
+        const frontendShareUrl = `${window.location.origin}/share-card/${id}/${nameSlug}`
         await navigator.clipboard.writeText(frontendShareUrl)
         copied.value = true
         setTimeout(() => { copied.value = false }, 2000)

@@ -83,7 +83,7 @@ export default {
         }
         if (data.is_registered) {
           const nameSlug = slugify(data.participant.nama_lengkap || '')
-          router.push(`/v1/share/${data.participant.id}/${nameSlug}`)
+          router.push(`/share-card/${data.participant.id}/${nameSlug}`)
         } else {
           router.push('/register')
         }
