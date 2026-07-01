@@ -1,24 +1,24 @@
 <template>
   <div class="min-h-screen flex flex-col">
-    <header class="sticky top-0 z-50 px-6 py-4 bg-slate-950/60 backdrop-blur-md border-b border-white/5">
-      <div class="max-w-6xl mx-auto flex items-center justify-between">
-        <router-link to="/" class="flex items-center gap-3">
-          <span class="w-2.5 h-2.5 rounded-full bg-aws-orange animate-pulse"></span>
-          <span class="font-bold text-xl tracking-tight text-white font-mono">
-            AWS AI <span class="text-aws-orange">Academy</span> Networking
+    <header class="sticky top-0 z-50 px-4 md:px-6 py-4 bg-slate-950/60 backdrop-blur-md border-b border-white/5">
+      <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3 md:gap-0">
+        <router-link to="/" class="flex items-center gap-2 md:gap-3">
+          <span class="w-2 md:w-2.5 h-2 md:h-2.5 rounded-full bg-aws-orange animate-pulse"></span>
+          <span class="font-bold text-base md:text-xl tracking-tight text-white font-mono text-center">
+            AWS AI <span class="text-aws-orange">Academy</span> <span class="hidden sm:inline">Networking</span>
           </span>
         </router-link>
-        <nav class="flex items-center gap-6">
+        <nav class="flex items-center gap-4 md:gap-6">
           <router-link 
             to="/" 
-            class="text-sm font-medium transition-colors hover:text-aws-orange"
+            class="text-xs md:text-sm font-medium transition-colors hover:text-aws-orange"
             :class="$route.path === '/' || $route.path === '/register' ? 'text-aws-orange' : 'text-slate-300'"
           >
             Buat Kartu
           </router-link>
           <router-link 
             to="/game" 
-            class="text-sm font-medium transition-colors hover:text-aws-orange"
+            class="text-xs md:text-sm font-medium transition-colors hover:text-aws-orange"
             :class="$route.path === '/game' ? 'text-aws-orange' : 'text-slate-300'"
           >
             Tebak Profil (Game)

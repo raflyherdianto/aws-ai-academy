@@ -91,19 +91,45 @@ func (h *ProfileHandler) RegisterProfile(c *gin.Context) {
 	)
 
 	if err == nil {
-		if namaPanggilan.Valid { p.NamaPanggilan = &namaPanggilan.String }
-		if gender.Valid { p.Gender = &gender.String }
-		if kota.Valid { p.Kota = &kota.String }
-		if provinsi.Valid { p.Provinsi = &provinsi.String }
-		if pekerjaan.Valid { p.Pekerjaan = &pekerjaan.String }
-		if bio.Valid { p.Bio = &bio.String }
-		if rpgClass.Valid { p.RPGClass = &rpgClass.String }
-		if rpgStats.Valid { p.RPGStats = &rpgStats.String }
-		if imagePath.Valid { p.ImagePath = &imagePath.String }
-		if linkedin.Valid { p.Linkedin = &linkedin.String }
-		if backgroundIT.Valid { p.BackgroundIT = &backgroundIT.String }
-		if motivasi.Valid { p.Motivasi = &motivasi.String }
-		if slug.Valid { p.Slug = &slug.String }
+		if namaPanggilan.Valid {
+			p.NamaPanggilan = &namaPanggilan.String
+		}
+		if gender.Valid {
+			p.Gender = &gender.String
+		}
+		if kota.Valid {
+			p.Kota = &kota.String
+		}
+		if provinsi.Valid {
+			p.Provinsi = &provinsi.String
+		}
+		if pekerjaan.Valid {
+			p.Pekerjaan = &pekerjaan.String
+		}
+		if bio.Valid {
+			p.Bio = &bio.String
+		}
+		if rpgClass.Valid {
+			p.RPGClass = &rpgClass.String
+		}
+		if rpgStats.Valid {
+			p.RPGStats = &rpgStats.String
+		}
+		if imagePath.Valid {
+			p.ImagePath = &imagePath.String
+		}
+		if linkedin.Valid {
+			p.Linkedin = &linkedin.String
+		}
+		if backgroundIT.Valid {
+			p.BackgroundIT = &backgroundIT.String
+		}
+		if motivasi.Valid {
+			p.Motivasi = &motivasi.String
+		}
+		if slug.Valid {
+			p.Slug = &slug.String
+		}
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -220,19 +246,45 @@ func (h *ProfileHandler) GetProfile(c *gin.Context) {
 		return
 	}
 
-	if namaPanggilan.Valid { p.NamaPanggilan = &namaPanggilan.String }
-	if gender.Valid { p.Gender = &gender.String }
-	if kota.Valid { p.Kota = &kota.String }
-	if provinsi.Valid { p.Provinsi = &provinsi.String }
-	if pekerjaan.Valid { p.Pekerjaan = &pekerjaan.String }
-	if bio.Valid { p.Bio = &bio.String }
-	if rpgClass.Valid { p.RPGClass = &rpgClass.String }
-	if rpgStats.Valid { p.RPGStats = &rpgStats.String }
-	if imagePath.Valid { p.ImagePath = &imagePath.String }
-	if linkedin.Valid { p.Linkedin = &linkedin.String }
-	if backgroundIT.Valid { p.BackgroundIT = &backgroundIT.String }
-	if motivasi.Valid { p.Motivasi = &motivasi.String }
-	if slug.Valid { p.Slug = &slug.String }
+	if namaPanggilan.Valid {
+		p.NamaPanggilan = &namaPanggilan.String
+	}
+	if gender.Valid {
+		p.Gender = &gender.String
+	}
+	if kota.Valid {
+		p.Kota = &kota.String
+	}
+	if provinsi.Valid {
+		p.Provinsi = &provinsi.String
+	}
+	if pekerjaan.Valid {
+		p.Pekerjaan = &pekerjaan.String
+	}
+	if bio.Valid {
+		p.Bio = &bio.String
+	}
+	if rpgClass.Valid {
+		p.RPGClass = &rpgClass.String
+	}
+	if rpgStats.Valid {
+		p.RPGStats = &rpgStats.String
+	}
+	if imagePath.Valid {
+		p.ImagePath = &imagePath.String
+	}
+	if linkedin.Valid {
+		p.Linkedin = &linkedin.String
+	}
+	if backgroundIT.Valid {
+		p.BackgroundIT = &backgroundIT.String
+	}
+	if motivasi.Valid {
+		p.Motivasi = &motivasi.String
+	}
+	if slug.Valid {
+		p.Slug = &slug.String
+	}
 
 	c.JSON(http.StatusOK, p)
 }
@@ -242,7 +294,7 @@ func (h *ProfileHandler) SharePage(c *gin.Context) {
 
 	var id int64
 	var namaLengkap, rpgClass, imagePath, slugStr sql.NullString
-	
+
 	idParsed, err := strconv.ParseInt(idOrSlug, 10, 64)
 	var query string
 	var param interface{}
@@ -299,14 +351,14 @@ func (h *ProfileHandler) SharePage(c *gin.Context) {
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Developer RPG Card - %s</title>
-    <meta property="og:title" content="Developer RPG Card: %s" />
+    <title>Developer Card - %s</title>
+    <meta property="og:title" content="Developer Card: %s" />
     <meta property="og:description" content="Class: %s | Intip kartu karakter developer dan ikuti ice-breaking kami di AWS AI Academy!" />
     <meta property="og:image" content="%s" />
     <meta property="og:url" content="%s" />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Developer RPG Card: %s" />
+    <meta name="twitter:title" content="Developer Card: %s" />
     <meta name="twitter:description" content="Class: %s | Intip kartu karakter developer dan ikuti ice-breaking kami di AWS AI Academy!" />
     <meta name="twitter:image" content="%s" />
 </head>
@@ -326,7 +378,7 @@ func (h *ProfileHandler) SharePage(c *gin.Context) {
 func generateSlug(name string) string {
 	slug := strings.ToLower(name)
 	slug = strings.ReplaceAll(slug, " ", "-")
-	
+
 	var result strings.Builder
 	for _, r := range slug {
 		if (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9') || r == '-' {
