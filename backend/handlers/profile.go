@@ -327,7 +327,7 @@ func (h *ProfileHandler) SharePage(c *gin.Context) {
 		class = rpgClass.String
 	}
 
-	canonicalURL := fmt.Sprintf("%s/v1/share/%d/%s?v=2026", h.BaseURL, id, fullNameSlug)
+	canonicalURL := fmt.Sprintf("%s/share-card/%d/%s", h.BaseURL, id, fullNameSlug)
 
 	html := fmt.Sprintf(`<!DOCTYPE html>
 <html prefix="og: https://ogp.me/ns#">

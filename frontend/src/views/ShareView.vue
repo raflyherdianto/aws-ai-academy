@@ -220,7 +220,7 @@ export default {
     const shareUrl = computed(() => {
       const id = participant.value.id || route.params.id
       const nameSlug = slugify(participant.value.nama_lengkap || '')
-      return `${window.location.origin}/v1/share/${id}/${nameSlug}?v=2026`
+      return `${window.location.origin}/share-card/${id}/${nameSlug}`
     })
 
     const capitalizeName = (str) => {
