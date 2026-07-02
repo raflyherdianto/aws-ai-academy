@@ -4,8 +4,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -52,6 +50,7 @@ func InitDB(dbPath string, schemaPath string, seedJSONPath string) (*sql.DB, err
 	_, _ = db.Exec("ALTER TABLE participants ADD COLUMN background_it TEXT")
 	_, _ = db.Exec("ALTER TABLE participants ADD COLUMN motivasi TEXT")
 	_, _ = db.Exec("ALTER TABLE participants ADD COLUMN slug TEXT")
+	_, _ = db.Exec("ALTER TABLE participants ADD COLUMN commitment INTEGER DEFAULT 0")
 	_, _ = db.Exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_participants_slug ON participants(slug)")
 
 	// Isi slug yang kosong untuk data lama jika ada
@@ -100,6 +99,11 @@ func InitDB(dbPath string, schemaPath string, seedJSONPath string) (*sql.DB, err
 		fmt.Printf("Peringatan inisialisasi fasilitator: %v\n", err)
 	}
 
+	// Pastikan data Sumbul Sumbil selalu ada
+	if err := upsertSumbul(db); err != nil {
+		fmt.Printf("Peringatan inisialisasi Sumbul: %v\n", err)
+	}
+
 	// Seed data wilayah (provinces + regencies) jika belum ada
 	if err := seedWilayah(db); err != nil {
 		fmt.Printf("Peringatan seed wilayah: %v\n", err)
@@ -136,14 +140,35 @@ func upsertFacilitator(db *sql.DB) error {
 	return err
 }
 
-func seedMentees(db *sql.DB, seedJSONPath string) error {
-	jsonFile, err := os.Open(seedJSONPath)
-	if err != nil {
-		return fmt.Errorf("gagal membuka file mentee.json: %v", err)
-	}
-	defer jsonFile.Close()
+func upsertSumbul(db *sql.DB) error {
+	email := "sumbulsumbil01@gmail.com"
+	namaLengkap := "Sumbul Sumbil"
+	whatsapp := "+6281234567890"
 
-	byteValue, err := io.ReadAll(jsonFile)
+	var exists bool
+	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM participants WHERE email = ?)", email).Scan(&exists)
+	if err != nil {
+		return err
+	}
+
+	if !exists {
+		slug := "sumbul-sumbil"
+		// Cek slug konflik
+		var slugExists bool
+		_ = db.QueryRow("SELECT EXISTS(SELECT 1 FROM participants WHERE slug = ?)", slug).Scan(&slugExists)
+		if slugExists {
+			slug = "sumbul-sumbil-1"
+		}
+		_, err = db.Exec(`
+			INSERT INTO participants(email, whatsapp, nama_lengkap, slug, is_registered)
+			VALUES(?, ?, ?, ?, 0)
+		`, email, whatsapp, namaLengkap, slug)
+	}
+	return err
+}
+
+func seedMentees(db *sql.DB, seedJSONPath string) error {
+	byteValue, err := os.ReadFile(seedJSONPath)
 	if err != nil {
 		return fmt.Errorf("gagal membaca file mentee.json: %v", err)
 	}
@@ -209,29 +234,36 @@ func makeUniqueSlug(tx *sql.Tx, baseSlug string) string {
 // --- Wilayah Seeder ---
 
 type wilayahItem struct {
-	Code string `json:"code"`
-	Name string `json:"name"`
+	Code         string `json:"code"`
+	Name         string `json:"name"`
+	ProvinceCode string `json:"province_code,omitempty"`
 }
 
-type wilayahResponse struct {
-	Data []wilayahItem `json:"data"`
+type wilayahLocalFile struct {
+	Provinces []wilayahItem `json:"provinces"`
+	Regencies []wilayahItem `json:"regencies"`
 }
 
-func fetchWilayah(url string) ([]wilayahItem, error) {
-	resp, err := http.Get(url)
-	if err != nil {
-		return nil, err
+// wilayahJSONPaths adalah daftar path kandidat untuk wilayah.json
+var wilayahJSONPaths = []string{
+	"./data/wilayah.json",
+	"../data/wilayah.json",
+	"./wilayah.json",
+}
+
+func loadWilayahFromFile() (*wilayahLocalFile, string, error) {
+	for _, p := range wilayahJSONPaths {
+		data, err := os.ReadFile(p)
+		if err != nil {
+			continue
+		}
+		var result wilayahLocalFile
+		if err := json.Unmarshal(data, &result); err != nil {
+			return nil, p, fmt.Errorf("gagal parse %s: %v", p, err)
+		}
+		return &result, p, nil
 	}
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-	var result wilayahResponse
-	if err := json.Unmarshal(body, &result); err != nil {
-		return nil, err
-	}
-	return result.Data, nil
+	return nil, "", fmt.Errorf("wilayah.json tidak ditemukan di: %v", wilayahJSONPaths)
 }
 
 func seedWilayah(db *sql.DB) error {
@@ -244,13 +276,12 @@ func seedWilayah(db *sql.DB) error {
 		return nil // sudah ada, skip
 	}
 
-	fmt.Println("Fetching data wilayah dari wilayah.id...")
-
-	// Fetch provinsi
-	provinces, err := fetchWilayah("https://wilayah.id/api/provinces.json")
+	// Baca dari file JSON lokal (pre-fetched oleh scripts/fetch_wilayah.py)
+	wilayah, filePath, err := loadWilayahFromFile()
 	if err != nil {
-		return fmt.Errorf("gagal fetch provinces: %v", err)
+		return fmt.Errorf("gagal memuat data wilayah: %v", err)
 	}
+	fmt.Printf("Seeding wilayah dari file lokal: %s\n", filePath)
 
 	tx, err := db.Begin()
 	if err != nil {
@@ -270,29 +301,22 @@ func seedWilayah(db *sql.DB) error {
 	}
 	defer stmtReg.Close()
 
-	for _, prov := range provinces {
+	for _, prov := range wilayah.Provinces {
 		if _, err := stmtProv.Exec(prov.Code, prov.Name); err != nil {
 			fmt.Printf("Skip province %s: %v\n", prov.Code, err)
-			continue
 		}
+	}
 
-		// Fetch regencies untuk provinsi ini
-		regencies, err := fetchWilayah(fmt.Sprintf("https://wilayah.id/api/regencies/%s.json", prov.Code))
-		if err != nil {
-			fmt.Printf("Skip regencies %s: %v\n", prov.Code, err)
-			continue
+	for _, reg := range wilayah.Regencies {
+		if _, err := stmtReg.Exec(reg.Code, reg.ProvinceCode, reg.Name); err != nil {
+			fmt.Printf("Skip regency %s: %v\n", reg.Code, err)
 		}
-		for _, reg := range regencies {
-			if _, err := stmtReg.Exec(reg.Code, prov.Code, reg.Name); err != nil {
-				fmt.Printf("Skip regency %s: %v\n", reg.Code, err)
-			}
-		}
-		fmt.Printf("  ✓ %s (%d kota/kabupaten)\n", prov.Name, len(regencies))
 	}
 
 	if err := tx.Commit(); err != nil {
 		return err
 	}
-	fmt.Printf("Seeding wilayah selesai: %d provinsi\n", len(provinces))
+	fmt.Printf("Seeding wilayah selesai: %d provinsi, %d kota/kab\n",
+		len(wilayah.Provinces), len(wilayah.Regencies))
 	return nil
 }

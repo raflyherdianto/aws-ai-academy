@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS participants (
     rpg_class TEXT,
     rpg_stats TEXT, -- JSON string: {"coding": 80, "bugs": 75, "architecture": 70, "cloud": 85}
     image_path TEXT,
+    commitment INTEGER DEFAULT 0, -- 0=belum, 1=iya farming pahala, -1=tidak
     linkedin TEXT,
     background_it TEXT,
     motivasi TEXT,

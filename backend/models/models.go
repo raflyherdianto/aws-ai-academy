@@ -21,6 +21,7 @@ type Participant struct {
 	Motivasi      *string   `json:"motivasi"`
 	Slug          *string   `json:"slug"`
 	IsRegistered  int       `json:"is_registered"`
+	Commitment    *int      `json:"commitment"`
 	CreatedAt     time.Time `json:"created_at"`
 	UpdatedAt     time.Time `json:"updated_at"`
 }

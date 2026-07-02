@@ -572,7 +572,10 @@ export default {
                 .replace(/-+$/, '')
             }
             const nameSlug = slugify(data.participant.nama_lengkap || '')
-            router.push(`/share-card/${participantId}/${nameSlug}`)
+            // Simpan pending state → redirect ke halaman commitment
+            localStorage.setItem('pending_participant_id', String(participantId))
+            localStorage.setItem('pending_name_slug', nameSlug)
+            router.push('/commitment')
           } else {
             const uploadData = await uploadResponse.json()
             error.value = uploadData.error || 'Gagal mengunggah kartu ke server.'

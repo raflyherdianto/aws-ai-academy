@@ -3,6 +3,7 @@ import HomeView from '../views/HomeView.vue'
 import RegisterView from '../views/RegisterView.vue'
 import ShareView from '../views/ShareView.vue'
 import GameView from '../views/GameView.vue'
+import CommitmentView from '../views/CommitmentView.vue'
 const routes = [
   {
     path: '/',
@@ -36,6 +37,17 @@ const routes = [
     path: '/game',
     name: 'game',
     component: GameView
+  },
+  {
+    path: '/commitment',
+    name: 'commitment',
+    component: CommitmentView,
+    beforeEnter: (to, from, next) => {
+      // Hanya boleh masuk jika ada pending_participant_id
+      const id = localStorage.getItem('pending_participant_id')
+      if (!id) next('/')
+      else next()
+    }
   }
 ]
 const router = createRouter({

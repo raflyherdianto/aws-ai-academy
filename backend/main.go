@@ -187,6 +187,7 @@ func main() {
 		{
 			protected.POST("/profile", profileHandler.RegisterProfile)
 			protected.POST("/profile/:id/upload", profileHandler.UploadCardImage)
+			protected.PATCH("/profile/:id/commitment", profileHandler.SetCommitment)
 		}
 	}
 

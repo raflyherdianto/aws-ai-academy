@@ -207,6 +207,59 @@ func (h *ProfileHandler) UploadCardImage(c *gin.Context) {
 	})
 }
 
+func (h *ProfileHandler) SetCommitment(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID tidak valid"})
+		return
+	}
+
+	// [Authorization Check] Pastikan ID milik pemilik token
+	tokenID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Akses ditolak."})
+		return
+	}
+	var authID int64
+	switch v := tokenID.(type) {
+	case float64:
+		authID = int64(v)
+	case int64:
+		authID = v
+	default:
+		c.JSON(http.StatusForbidden, gin.H{"error": "Tipe data ID tidak valid."})
+		return
+	}
+	if authID != id {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Akses ditolak."})
+		return
+	}
+
+	var body struct {
+		Commitment int `json:"commitment" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Field commitment diperlukan (1=ya, -1=tidak)"})
+		return
+	}
+	if body.Commitment != 1 && body.Commitment != -1 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Nilai commitment harus 1 (ya) atau -1 (tidak)"})
+		return
+	}
+
+	_, err = h.DB.Exec("UPDATE participants SET commitment = ? WHERE id = ?", body.Commitment, id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal menyimpan commitment"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":    "Commitment berhasil disimpan",
+		"commitment": body.Commitment,
+	})
+}
+
 func (h *ProfileHandler) GetProfile(c *gin.Context) {
 	idOrSlug := c.Param("id")
 

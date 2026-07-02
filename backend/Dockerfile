@@ -24,6 +24,8 @@ COPY --from=builder /app/assets ./assets
 
 # Ensure data and uploads directories exist
 RUN mkdir -p /app/data /app/uploads
+# Copy wilayah data (pre-fetched, no HTTP needed at startup)
+COPY --from=builder /app/data/wilayah.json ./data/wilayah.json
 
 EXPOSE 8080
 
